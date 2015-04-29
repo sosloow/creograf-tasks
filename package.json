@@ -1,0 +1,21 @@
+{
+  "name": "creograf-tasks",
+  "version": "0.0.1",
+  "description": "pack of utility grunt tasks for creograf's devs",
+  "main": "index.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://sn@creograf-dev.ru:222/repo/creograf-tasks.git"
+  },
+  "author": "Stepan Shilin",
+  "license": "ISC",
+  "dependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-jade": "^0.14.1",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-http-server": "^1.3.0"
+  }
+}
