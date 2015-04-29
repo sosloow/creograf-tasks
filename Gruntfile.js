@@ -71,8 +71,8 @@ module.exports = function(grunt) {
     stylus: {
       options: {
         compress: false,
-        path: ['node_modules/jeet/stylus', 'node_modules/rupture'],
-        use: [require('jeet'), require('rupture')]
+        path: ['node_modules/jeet/stylus', 'node_modules/rupture']
+        // use: [require('jeet'), require('rupture')]
       },
       compile: {
         files: [
