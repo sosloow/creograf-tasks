@@ -12,17 +12,7 @@ module.exports = function(grunt) {
         runInBackground: true
       }
     },
-    concurrent: {
-      build: {
-        tasks: ['jade']
-      },
-      dev: {
-        tasks: ['watch'],
-        options: {
-          logConcurrentOutput: true
-        }
-      }
-    },
+
     browserify: {
       build: {
         src: 'app/client/public/index.coffee',
@@ -31,6 +21,7 @@ module.exports = function(grunt) {
           transform: ['coffeeify']
         }
       },
+
       watch: {
         src: 'app/client/public/index.coffee',
         dest: 'public/js/dist/public.js',
@@ -42,16 +33,24 @@ module.exports = function(grunt) {
         }
       }
     },
+
     coffee: {
       compile: {
         options: {
           join: true
         },
         files: {
-          'public/js/dist/cms.js': ['app/client/services.coffee', 'app/client/directives.coffee', 'app/client/filters.coffee', 'app/client/controllers/application.coffee', 'app/client/controllers/*.coffee', 'app/client/app.coffee']
+          'public/js/dist/cms.js': [
+            'app/client/services.coffee',
+            'app/client/directives.coffee',
+            'app/client/filters.coffee',
+            'app/client/controllers/application.coffee',
+            'app/client/controllers/*.coffee',
+            'app/client/app.coffee']
         }
       }
     },
+
     jade: {
       compile: {
         options: {
@@ -68,6 +67,7 @@ module.exports = function(grunt) {
         ]
       }
     },
+
     stylus: {
       options: {
         compress: false,
@@ -86,6 +86,7 @@ module.exports = function(grunt) {
         ]
       }
     },
+
     autoprefixer: {
       options: {
         browsers: ['Android >= <%= pkg.browsers.android %>', 'Chrome >= <%= pkg.browsers.chrome %>', 'Firefox >= <%= pkg.browsers.firefox %>', 'Explorer >= <%= pkg.browsers.ie %>', 'iOS >= <%= pkg.browsers.ios %>', 'Opera >= <%= pkg.browsers.opera %>', 'Safari >= <%= pkg.browsers.safari %>']
@@ -94,6 +95,7 @@ module.exports = function(grunt) {
         src: ['public/css/style.css']
       }
     },
+
     sprite: {
       dist: {
         src: 'public/resources/sprite/**/*.png',
@@ -109,6 +111,7 @@ module.exports = function(grunt) {
         }
       }
     },
+
     imagemin: {
       images: {
         files: [
@@ -121,6 +124,7 @@ module.exports = function(grunt) {
         ]
       }
     },
+
     ngAnnotate: {
       options: {
         singleQuotes: true
@@ -131,6 +135,7 @@ module.exports = function(grunt) {
         }
       }
     },
+
     uglify: {
       vendor: {
         options: {
@@ -153,6 +158,7 @@ module.exports = function(grunt) {
         }
       }
     },
+
     karma: {
       unit: {
         configFile: 'config/karma.conf.coffee',
@@ -161,9 +167,10 @@ module.exports = function(grunt) {
         logLevel: 'INFO'
       }
     },
+
     watch: {
       assets: {
-        files: ['crs/js/**/*.js', 'crs/css/**/*.css'],
+        files: ['src/js/**/*.js', 'src/css/**/*.css', 'src/images/**/*.images'],
         tasks: ['copy-assets']
       },
       sprite: {
@@ -198,19 +205,26 @@ module.exports = function(grunt) {
       }
     }
   });
+
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jade');
   grunt.loadNpmTasks('grunt-http-server');
+
   grunt.registerTask('copy-assets', function() {
-    var copyDir;
-    copyDir = function(dir, destDir) {
+    var copyDir = function(dir, destDir) {
       return grunt.file.recurse(dir, function(abspath, rootdir, subdir, filename) {
         return grunt.file.copy(abspath, destDir + filename);
       });
     };
-    copyDir('src/js/', 'dist/js/');
-    return copyDir('src/css/', 'dist/css/');
+    try {
+      copyDir('src/js/', 'dist/js/');
+      copyDir('src/css/', 'dist/css/');
+      copyDir('src/images/', 'dist/images/');
+    } catch (error) {
+      console.log(error);
+    }
   });
+
   grunt.registerTask('build', ['jade']);
-  return grunt.registerTask('default', ['build', 'copy-assets', 'http-server', 'watch']);
+  grunt.registerTask('default', ['build', 'copy-assets', 'http-server', 'watch']);
 };
