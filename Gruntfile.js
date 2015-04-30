@@ -16,37 +16,16 @@ module.exports = function(grunt) {
     browserify: {
       build: {
         src: 'app/client/public/index.coffee',
-        dest: 'public/js/dist/public.js',
-        options: {
-          transform: ['coffeeify']
-        }
+        dest: 'public/js/dist/public.js'
       },
 
       watch: {
         src: 'app/client/public/index.coffee',
         dest: 'public/js/dist/public.js',
         options: {
-          transform: ['coffeeify'],
           keepAlive: true,
           watch: true,
           livereload: true
-        }
-      }
-    },
-
-    coffee: {
-      compile: {
-        options: {
-          join: true
-        },
-        files: {
-          'public/js/dist/cms.js': [
-            'app/client/services.coffee',
-            'app/client/directives.coffee',
-            'app/client/filters.coffee',
-            'app/client/controllers/application.coffee',
-            'app/client/controllers/*.coffee',
-            'app/client/app.coffee']
         }
       }
     },
@@ -56,15 +35,13 @@ module.exports = function(grunt) {
         options: {
           doctype: 'html'
         },
-        files: [
-          {
-            expand: true,
-            cwd: 'src/jade',
-            src: '*.jade',
-            dest: 'dist',
-            ext: '.html'
-          }
-        ]
+        files: [{
+          expand: true,
+          cwd: 'src/jade',
+          src: '*.jade',
+          dest: 'dist',
+          ext: '.html'
+        }]
       }
     },
 
@@ -88,24 +65,31 @@ module.exports = function(grunt) {
     },
 
     autoprefixer: {
-      options: {
-        browsers: ['Android >= <%= pkg.browsers.android %>', 'Chrome >= <%= pkg.browsers.chrome %>', 'Firefox >= <%= pkg.browsers.firefox %>', 'Explorer >= <%= pkg.browsers.ie %>', 'iOS >= <%= pkg.browsers.ios %>', 'Opera >= <%= pkg.browsers.opera %>', 'Safari >= <%= pkg.browsers.safari %>']
-      },
       dist: {
-        src: ['public/css/style.css']
+        options: {
+          expand: true,
+          flatten: true,
+          browsers: [
+            'Android >= <%= pkg.browsers.android %>',
+            'Chrome >= <%= pkg.browsers.chrome %>',
+            'Firefox >= <%= pkg.browsers.firefox %>',
+            'Explorer >= <%= pkg.browsers.ie %>',
+            'iOS >= <%= pkg.browsers.ios %>',
+            'Opera >= <%= pkg.browsers.opera %>',
+            'Safari >= <%= pkg.browsers.safari %>']
+        },
+        src: 'dist/css/**/*.css'
       }
     },
 
     sprite: {
       dist: {
-        src: 'public/resources/sprite/**/*.png',
-        dest: 'public/resources/sprite.png',
-        imgPath: '/resources/sprite.png',
-        destCss: 'views/styles/helpers/sprite.styl',
-        cssFormat: 'stylus',
+        src: 'src/images/sprite/**/*.png',
+        dest: 'dist/images/sprite.png',
+        imgPath: 'dist/images/sprite.png',
+        destCss: 'dist/css/sprite.css',
         algorithm: 'binary-tree',
         padding: 8,
-        engine: 'pngsmith',
         imgOpts: {
           format: 'png'
         }
@@ -169,12 +153,32 @@ module.exports = function(grunt) {
     },
 
     watch: {
-      assets: {
-        files: ['src/js/**/*.js', 'src/css/**/*.css', 'src/images/**/*.images'],
-        tasks: ['copy-assets']
+      css: {
+        options: {
+          livereload: true
+        },
+        files: ['src/css/**/*.css'],
+        tasks: ['build:css']
+      },
+      images: {
+        options: {
+          livereload: true
+        },
+        files: ['src/images/**/*', '!src/images/sprite/**/*.png'],
+        tasks: ['copy-images']
+      },
+      js: {
+        options: {
+          livereload: true
+        },
+        files: ['src/js/**/*.js'],
+        tasks: ['copy-js']
       },
       sprite: {
-        files: ['public/resources/sprite/**/*.png'],
+        options: {
+          livereload: true
+        },
+        files: ['src/images/sprite/**/*.png'],
         tasks: ['sprite']
       },
       jade: {
@@ -209,22 +213,30 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jade');
   grunt.loadNpmTasks('grunt-http-server');
+  grunt.loadNpmTasks('grunt-http-server');
+  grunt.loadNpmTasks('grunt-spritesmith');
+  grunt.loadNpmTasks('grunt-autoprefixer');
 
-  grunt.registerTask('copy-assets', function() {
-    var copyDir = function(dir, destDir) {
-      return grunt.file.recurse(dir, function(abspath, rootdir, subdir, filename) {
-        return grunt.file.copy(abspath, destDir + filename);
-      });
-    };
-    try {
-      copyDir('src/js/', 'dist/js/');
-      copyDir('src/css/', 'dist/css/');
-      copyDir('src/images/', 'dist/images/');
-    } catch (error) {
-      console.log(error);
-    }
+  grunt.registerTask('copy-css', function() {
+    copyDir('src/css/', 'dist/css/');
   });
 
-  grunt.registerTask('build', ['jade']);
-  grunt.registerTask('default', ['build', 'copy-assets', 'http-server', 'watch']);
+  grunt.registerTask('copy-js', function() {
+    copyDir('src/js/', 'dist/js/');
+  });
+
+  grunt.registerTask('copy-images', function() {
+    copyDir('src/images/', 'dist/images/');
+  });
+
+  grunt.registerTask('copy-assets', ['copy-css', 'copy-js', 'copy-images']);
+  grunt.registerTask('build:css', ['copy-css', 'autoprefixer']);
+  grunt.registerTask('build', ['jade', 'sprite', 'copy-assets', 'autoprefixer']);
+  grunt.registerTask('default', ['build', 'http-server', 'watch']);
+
+  function copyDir(dir, destDir) {
+    return grunt.file.recurse(dir, function(abspath, rootdir, subdir, filename) {
+      return grunt.file.copy(abspath, destDir + filename);
+    });
+  }
 };
