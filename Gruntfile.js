@@ -88,6 +88,7 @@ module.exports = function(grunt) {
         dest: 'dist/images/sprite.png',
         imgPath: 'dist/images/sprite.png',
         destCss: 'dist/css/sprite.css',
+        imgPath: '../images/sprite.png',
         algorithm: 'binary-tree',
         padding: 8,
         imgOpts: {
